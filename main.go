@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"gogo/common"
+	"gogo/modules/items/model"
+	ginitem "gogo/modules/items/transport/gin"
 	"log"
 	"net/http"
 	"os"
@@ -12,38 +14,6 @@ import (
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
-
-type TodoItem struct {
-	common.SQLModel
-	Title       string `json:"title" gorm:"column:title;"`
-	Description string `json:"description" gorm:"column:description;"`
-	Status      string `json:"status" gorm:"column:status;"`
-}
-
-func (TodoItem) TableName() string {
-	return "todo_items"
-}
-
-type TodoItemsCreation struct {
-	Id          int    `json:"_" gorm:"column:id;"`
-	Title       string `json:"title" gorm:"column:title;"`
-	Description string `json:"description" gorm:"column:description;"`
-	Status      string `json:"status" gorm:"column:status;"`
-}
-
-func (TodoItemsCreation) TableName() string {
-	return TodoItem{}.TableName()
-}
-
-type TodoItemsUpdate struct {
-	Title       *string `json:"title" gorm:"column:title;"`
-	Description *string `json:"description" gorm:"column:description;"`
-	Status      *string `json:"status" gorm:"column:status;"`
-}
-
-func (TodoItemsUpdate) TableName() string {
-	return TodoItem{}.TableName()
-}
 
 func main() {
 	fmt.Println("Hello, World!  33331")
@@ -76,11 +46,11 @@ func main() {
 
 	v1 := r.Group("/v1")
 	{
-		v1.POST("/items", CreateItem(db))
-		v1.GET("/items/:id", GetItem(db))
-		v1.PUT("/items/:id", UpdateItem(db))
-		v1.PATCH("/items/:id", UpdateItem(db))
-		v1.DELETE("/items/:id", DeleteItem(db))
+		v1.POST("/items", ginitem.CreateItem(db))
+		v1.GET("/items/:id", ginitem.GetItem(db))
+		v1.PUT("/items/:id", ginitem.UpdateItem(db))
+		v1.PATCH("/items/:id", ginitem.UpdateItem(db))
+		v1.DELETE("/items/:id", ginitem.DeleteItem(db))
 		v1.GET("/items", GetItems(db))
 	}
 
@@ -96,74 +66,74 @@ func main() {
 	}
 }
 
-func CreateItem(db *gorm.DB) func(*gin.Context) {
-	return func(c *gin.Context) {
-		var data TodoItemsCreation
-		if err := c.ShouldBind(&data); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-			return
-		}
+// func CreateItem(db *gorm.DB) func(*gin.Context) {
+// 	return func(c *gin.Context) {
+// 		var data model.TodoItemsCreation
+// 		if err := c.ShouldBind(&data); err != nil {
+// 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+// 			return
+// 		}
 
-		fmt.Println(data)
+// 		fmt.Println(data)
 
-		if err := db.Create(&data); err.Error != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error})
-			return
-		}
+// 		if err := db.Create(&data); err.Error != nil {
+// 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error})
+// 			return
+// 		}
 
-		c.JSON(http.StatusOK, common.SimpleSuccessResponse(data.Id))
-	}
-}
+// 		c.JSON(http.StatusOK, common.SimpleSuccessResponse(data.Id))
+// 	}
+// }
 
-func GetItem(db *gorm.DB) func(*gin.Context) {
-	return func(c *gin.Context) {
-		var data TodoItem
+// func GetItem(db *gorm.DB) func(*gin.Context) {
+// 	return func(c *gin.Context) {
+// 		var data model.TodoItem
 
-		fmt.Println(data)
+// 		fmt.Println(data)
 
-		if err := db.First(&data, c.Param("id")).Error; err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-			return
-		}
+// 		if err := db.First(&data, c.Param("id")).Error; err != nil {
+// 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+// 			return
+// 		}
 
-		c.JSON(http.StatusOK, common.SimpleSuccessResponse(data))
-	}
-}
+// 		c.JSON(http.StatusOK, common.SimpleSuccessResponse(data))
+// 	}
+// }
 
-func UpdateItem(db *gorm.DB) func(*gin.Context) {
-	return func(c *gin.Context) {
-		var data TodoItemsUpdate
-		var id = c.Param("id")
-		if err := c.ShouldBind(&data); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-			return
-		}
+// func UpdateItem(db *gorm.DB) func(*gin.Context) {
+// 	return func(c *gin.Context) {
+// 		var data model.TodoItemsUpdate
+// 		var id = c.Param("id")
+// 		if err := c.ShouldBind(&data); err != nil {
+// 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+// 			return
+// 		}
 
-		if err := db.Where("id = ?", id).Updates(&data).Error; err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-			return
-		}
+// 		if err := db.Where("id = ?", id).Updates(&data).Error; err != nil {
+// 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+// 			return
+// 		}
 
-		c.JSON(http.StatusOK, common.SimpleSuccessResponse(data))
-	}
-}
+// 		c.JSON(http.StatusOK, common.SimpleSuccessResponse(data))
+// 	}
+// }
 
-func DeleteItem(db *gorm.DB) func(*gin.Context) {
-	return func(c *gin.Context) {
-		if err := db.Table(TodoItem{}.TableName()).Where("id = ?", c.Param("id")).Updates(map[string]interface{}{
-			"status": "Deleted",
-		}).Error; err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-			return
-		}
+// func DeleteItem(db *gorm.DB) func(*gin.Context) {
+// 	return func(c *gin.Context) {
+// 		if err := db.Table(model.TodoItem{}.TableName()).Where("id = ?", c.Param("id")).Updates(map[string]interface{}{
+// 			"status": "Deleted",
+// 		}).Error; err != nil {
+// 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+// 			return
+// 		}
 
-		c.JSON(http.StatusOK, common.SimpleSuccessResponse(true))
-	}
-}
+// 		c.JSON(http.StatusOK, common.SimpleSuccessResponse(true))
+// 	}
+// }
 
 func GetItems(db *gorm.DB) func(*gin.Context) {
 	return func(c *gin.Context) {
-		var data []TodoItem
+		var data []model.TodoItem
 		var query common.Paging
 
 		if err := c.ShouldBind(&query); err != nil {
@@ -175,7 +145,7 @@ func GetItems(db *gorm.DB) func(*gin.Context) {
 
 		db = db.Where("status <> ?", "Deleted")
 
-		if err := db.Table(TodoItem{}.TableName()).Count(&query.Total).Error; err != nil {
+		if err := db.Table(model.TodoItem{}.TableName()).Count(&query.Total).Error; err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}

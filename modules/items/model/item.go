@@ -1,6 +1,14 @@
 package model
 
-import "gogo/common"
+import (
+	"errors"
+	"gogo/common"
+)
+
+var (
+	ErrorTitleIsBlank = errors.New("title is required")
+	ErrorItemNotFound = errors.New("item not found")
+)
 
 type TodoItem struct {
 	common.SQLModel
