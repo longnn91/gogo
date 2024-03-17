@@ -2,8 +2,6 @@ package main
 
 import (
 	"fmt"
-	"gogo/common"
-	"gogo/modules/items/model"
 	ginitem "gogo/modules/items/transport/gin"
 	"log"
 	"net/http"
@@ -51,7 +49,8 @@ func main() {
 		v1.PUT("/items/:id", ginitem.UpdateItem(db))
 		v1.PATCH("/items/:id", ginitem.UpdateItem(db))
 		v1.DELETE("/items/:id", ginitem.DeleteItem(db))
-		v1.GET("/items", GetItems(db))
+		v1.GET("/items", ginitem.ListItem(db))
+		// v1.GET("/items", GetItems(db))
 	}
 
 	r.GET("/ping", func(c *gin.Context) {
@@ -131,32 +130,32 @@ func main() {
 // 	}
 // }
 
-func GetItems(db *gorm.DB) func(*gin.Context) {
-	return func(c *gin.Context) {
-		var data []model.TodoItem
-		var query common.Paging
+// func GetItems(db *gorm.DB) func(*gin.Context) {
+// 	return func(c *gin.Context) {
+// 		var data []model.TodoItem
+// 		var query common.Paging
 
-		if err := c.ShouldBind(&query); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-			return
-		}
+// 		if err := c.ShouldBind(&query); err != nil {
+// 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+// 			return
+// 		}
 
-		query.Process()
+// 		query.Process()
 
-		db = db.Where("status <> ?", "Deleted")
+// 		db = db.Where("status <> ?", "Deleted")
 
-		if err := db.Table(model.TodoItem{}.TableName()).Count(&query.Total).Error; err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-			return
-		}
+// 		if err := db.Table(model.TodoItem{}.TableName()).Count(&query.Total).Error; err != nil {
+// 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+// 			return
+// 		}
 
-		if err := db.Order("id desc").
-			Offset((query.Page - 1) * query.Limit).
-			Limit(query.Limit).Find(&data).Error; err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-			return
-		}
+// 		if err := db.Order("id desc").
+// 			Offset((query.Page - 1) * query.Limit).
+// 			Limit(query.Limit).Find(&data).Error; err != nil {
+// 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+// 			return
+// 		}
 
-		c.JSON(http.StatusOK, common.NewSuccessResponse(data, query, nil))
-	}
-}
+// 		c.JSON(http.StatusOK, common.NewSuccessResponse(data, query, nil))
+// 	}
+// }
