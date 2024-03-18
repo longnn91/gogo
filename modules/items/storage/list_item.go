@@ -17,7 +17,7 @@ func (s *sqlStore) ListItem(ctx context.Context, filter *model.Filter, paging *c
 		}
 	}
 
-	if err := s.db.Table(model.TodoItem{}.TableName()).Count(&paging.Total).Error; err != nil {
+	if err := db.Table(model.TodoItem{}.TableName()).Count(&paging.Total).Error; err != nil {
 		return nil, err
 	}
 
