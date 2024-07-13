@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	ginitem "gogo/modules/items/transport/gin"
+	item "gogo/modules/items/transport"
 	"log"
 	"net/http"
 	"os"
@@ -44,12 +44,12 @@ func mainbk() {
 
 	v1 := r.Group("/v1")
 	{
-		v1.POST("/items", ginitem.CreateItem(db))
-		v1.GET("/items/:id", ginitem.GetItem(db))
-		v1.PUT("/items/:id", ginitem.UpdateItem(db))
-		v1.PATCH("/items/:id", ginitem.UpdateItem(db))
-		v1.DELETE("/items/:id", ginitem.DeleteItem(db))
-		v1.GET("/items", ginitem.ListItem(db))
+		v1.POST("/items", item.CreateItem(db))
+		v1.GET("/items/:id", item.GetItem(db))
+		v1.PUT("/items/:id", item.UpdateItem(db))
+		v1.PATCH("/items/:id", item.UpdateItem(db))
+		v1.DELETE("/items/:id", item.DeleteItem(db))
+		v1.GET("/items", item.ListItem(db))
 		// v1.GET("/items", GetItems(db))
 	}
 

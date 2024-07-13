@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	ginitem "gogo/modules/items/transport/gin"
+	item "gogo/modules/items/transport"
 	"log"
 	"net/http"
 	"os"
@@ -24,7 +24,31 @@ func main() {
 
 	//Connect to database
 	dsn := os.Getenv("DATABASE_URL")
-	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+
+	//Handle authentication with JWT
+	// secretKey := os.Getenv("SECRET_KEY")
+
+	// func createToken(username string) (string, error) {
+	// 	claims := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+	// 		"sub": username,
+	// 		"iss": "gogo",
+	// 		"aud": "user",
+	// 		"exp": time.Now().Add(time.Hour).Unix(),
+	// 		"iat": time.Now().Unix(),
+	// 	})
+
+	// 	tokenString, err := claims.SignedString(secretKey)
+	// 	if err != nil {
+	// 		return "", err
+	// 	}
+
+	// 	fmt.Printf("Token claims added: %+v\n", claims)
+	// 	return tokenString, nil
+	// }
+
+	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
+		DisableForeignKeyConstraintWhenMigrating: true,
+	})
 
 	if err != nil {
 		log.Fatal("Error connecting to database", err)
@@ -32,16 +56,21 @@ func main() {
 
 	//Config API use gin
 	r := gin.Default()
-
 	v1 := r.Group("/v1")
+	itemRouter := v1.Group("/items")
 	{
-		v1.POST("/items", ginitem.CreateItem(db))
-		v1.GET("/items/:id", ginitem.GetItem(db))
-		v1.PUT("/items/:id", ginitem.UpdateItem(db))
-		v1.PATCH("/items/:id", ginitem.UpdateItem(db))
-		v1.DELETE("/items/:id", ginitem.DeleteItem(db))
-		v1.GET("/items", ginitem.ListItem(db))
+		itemRouter.POST("/", item.CreateItem(db))
+		itemRouter.GET("/", item.ListItem(db))
+		itemRouter.GET("/:id", item.GetItem(db))
+		itemRouter.PUT("/:id", item.UpdateItem(db))
+		itemRouter.PATCH("/:id", item.UpdateItem(db))
+		itemRouter.DELETE("/:id", item.DeleteItem(db))
 	}
+
+	// authRouter := v1.Group("/auth")
+	// {
+	// 	authRouter.POST("/login", auth.Login(db))
+	// }
 
 	r.GET("/ping", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
