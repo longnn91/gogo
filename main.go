@@ -78,7 +78,7 @@ func main() {
 	authRouter := v1.Group("/auth")
 	{
 		authRouter.POST("/login", auth.Login(db))
-		authRouter.POST("/register", auth.CreateUser(db))
+		authRouter.POST("/register", auth.Register(db))
 	}
 
 	r.GET("/ping", func(c *gin.Context) {

@@ -16,9 +16,19 @@ func (s *sqlStore) CreateUser(ctx context.Context, data *model.UsersCreation) er
 	return nil
 }
 
-func (s *sqlStore) GetItem(ctx context.Context, id int) (*model.Users, error) {
+func (s *sqlStore) GetUser(ctx context.Context, username string) (*model.Users, error) {
 	var data model.Users
-	if err := s.db.First(&data, id).Error; err != nil {
+	if err := s.db.First(&data, username).Error; err != nil {
+		return nil, err
+	}
+
+	return &data, nil
+}
+
+func (s *sqlStore) GetTokenByLogin(ctx context.Context, userData *model.UserLogin) (*model.Users, error) {
+	var data model.Users
+	username := userData.Username
+	if err := s.db.Where("username = ?", username).First(&data).Error; err != nil {
 		return nil, err
 	}
 
