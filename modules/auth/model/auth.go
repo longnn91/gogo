@@ -6,8 +6,9 @@ import (
 )
 
 var (
-	ErrorTitleIsBlank = errors.New("title is required")
-	ErrorItemNotFound = errors.New("item not found")
+	ErrorTitleIsBlank    = errors.New("Title is required")
+	ErrorItemNotFound    = errors.New("Item not found")
+	ErrorUserNameIsExist = errors.New("Username is exist")
 )
 
 type Users struct {

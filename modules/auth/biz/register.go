@@ -2,7 +2,6 @@ package biz
 
 import (
 	"context"
-	"fmt"
 	"gogo/modules/auth/model"
 
 	"github.com/alexedwards/argon2id"
@@ -25,6 +24,7 @@ func (p *Password) Set(plaintextPassword string) error {
 
 type CreateUserStorage interface {
 	CreateUser(ctx context.Context, data *model.UsersCreation) error
+	GetUserByUsername(ctx context.Context, userData *model.UserLogin) (*model.Users, error)
 }
 
 type createUserBiz struct {
@@ -37,18 +37,25 @@ func NewcreateUserBiz(store CreateUserStorage) *createUserBiz {
 
 func (biz *createUserBiz) CreateUser(ctx context.Context, data *model.UsersCreation) error {
 
+	//Check if user already exists
+	userData := &model.UserLogin{
+		Username: data.Username,
+	}
+
+	_, err := biz.store.GetUserByUsername(ctx, userData)
+
+	if err == nil {
+		return model.ErrorUserNameIsExist
+	}
+
+	//Handle to save user with hashed password
 	var hashPassword Password
 	if err := hashPassword.Set(data.Password); err != nil {
 		return err
 	}
 
-	// Set the hashed password
 	data.Password = hashPassword.hash
 
-	// Print the hashed password for debugging
-	fmt.Println("Hashed Password:", hashPassword.hash)
-
-	// Save the user to the database
 	if err := biz.store.CreateUser(ctx, data); err != nil {
 		return err
 	}

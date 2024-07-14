@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"gogo/modules/auth/middleware"
 	authModal "gogo/modules/auth/model"
 	auth "gogo/modules/auth/transport"
 	item "gogo/modules/items/transport"
@@ -16,8 +16,6 @@ import (
 )
 
 func main() {
-	fmt.Println("Hello, World!  33331")
-
 	//Load .env file
 	err := godotenv.Load()
 	if err != nil {
@@ -26,27 +24,6 @@ func main() {
 
 	//Connect to database
 	dsn := os.Getenv("DATABASE_URL")
-
-	//Handle authentication with JWT
-	// secretKey := os.Getenv("SECRET_KEY")
-
-	// func createToken(username string) (string, error) {
-	// 	claims := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-	// 		"sub": username,
-	// 		"iss": "gogo",
-	// 		"aud": "user",
-	// 		"exp": time.Now().Add(time.Hour).Unix(),
-	// 		"iat": time.Now().Unix(),
-	// 	})
-
-	// 	tokenString, err := claims.SignedString(secretKey)
-	// 	if err != nil {
-	// 		return "", err
-	// 	}
-
-	// 	fmt.Printf("Token claims added: %+v\n", claims)
-	// 	return tokenString, nil
-	// }
 
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
 		DisableForeignKeyConstraintWhenMigrating: true,
@@ -65,7 +42,7 @@ func main() {
 	//Config API use gin
 	r := gin.Default()
 	v1 := r.Group("/v1")
-	itemRouter := v1.Group("/items")
+	itemRouter := v1.Group("/items").Use(middleware.AuthMiddleware)
 	{
 		itemRouter.POST("/", item.CreateItem(db))
 		itemRouter.GET("/", item.ListItem(db))

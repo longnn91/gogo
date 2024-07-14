@@ -28,6 +28,9 @@ func Register(db *gorm.DB) func(*gin.Context) {
 			return
 		}
 
+		//Remove password from response
+		data.Password = ""
+
 		c.JSON(http.StatusOK, common.SimpleSuccessResponse(data))
 	}
 }
