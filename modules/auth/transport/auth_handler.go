@@ -50,6 +50,6 @@ func Login(db *gorm.DB) func(*gin.Context) {
 			return
 		}
 
-		c.JSON(http.StatusOK, common.SimpleSuccessResponse(token))
+		c.JSON(http.StatusOK, common.SimpleSuccessResponse(gin.H{"token": token}))
 	}
 }

@@ -25,7 +25,7 @@ func (s *sqlStore) GetUser(ctx context.Context, username string) (*model.Users, 
 	return &data, nil
 }
 
-func (s *sqlStore) GetTokenByLogin(ctx context.Context, userData *model.UserLogin) (*model.Users, error) {
+func (s *sqlStore) GetUserByUsername(ctx context.Context, userData *model.UserLogin) (*model.Users, error) {
 	var data model.Users
 	username := userData.Username
 	if err := s.db.Where("username = ?", username).First(&data).Error; err != nil {

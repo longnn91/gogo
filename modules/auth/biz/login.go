@@ -39,7 +39,7 @@ func (p *Password) Matches(plaintextPassword string) (bool, error) {
 
 type GetUserStorage interface {
 	GetUser(ctx context.Context, username string) (*model.Users, error)
-	GetTokenByLogin(ctx context.Context, userData *model.UserLogin) (*model.Users, error)
+	GetUserByUsername(ctx context.Context, userData *model.UserLogin) (*model.Users, error)
 }
 
 type getUserBiz struct {
@@ -61,7 +61,7 @@ func (biz *getUserBiz) GetUserByUsername(ctx context.Context, username string) (
 
 func (biz *getUserBiz) GetTokenByLogin(ctx context.Context, userData *model.UserLogin) (string, error) {
 
-	data, err := biz.store.GetTokenByLogin(ctx, userData)
+	data, err := biz.store.GetUserByUsername(ctx, userData)
 	if err != nil {
 		return "", err
 	}
@@ -74,9 +74,9 @@ func (biz *getUserBiz) GetTokenByLogin(ctx context.Context, userData *model.User
 		return "", err
 	}
 
-	if token, err := createToken(userData.Username); match && err != nil {
-		return "", err
-	} else {
+	if token, err := createToken(userData.Username); match && err == nil {
 		return token, nil
+	} else {
+		return "", err
 	}
 }
