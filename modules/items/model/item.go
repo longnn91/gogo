@@ -33,9 +33,9 @@ func (TodoItemsCreation) TableName() string {
 }
 
 type TodoItemsUpdate struct {
-	Title       *string `json:"title" gorm:"column:title;"`
-	Description *string `json:"description" gorm:"column:description;"`
-	Status      *string `json:"status" gorm:"column:status;"`
+	Title       *string `json:"title" form:"title" gorm:"column:title;"`
+	Description *string `json:"description" form:"description" gorm:"column:description;"`
+	Status      *string `json:"status" form:"status" gorm:"column:status;"`
 }
 
 func (TodoItemsUpdate) TableName() string {

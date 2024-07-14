@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	authModal "gogo/modules/auth/model"
+	auth "gogo/modules/auth/transport"
 	item "gogo/modules/items/transport"
 	"log"
 	"net/http"
@@ -54,6 +56,12 @@ func main() {
 		log.Fatal("Error connecting to database", err)
 	}
 
+	//Migrate the schema
+
+	db.AutoMigrate(&authModal.Users{})
+	// db.Migrator().CreateTable(&authModal.Users{})
+	// db.Migrator().DropTable(&authModal.Users{})
+
 	//Config API use gin
 	r := gin.Default()
 	v1 := r.Group("/v1")
@@ -67,10 +75,11 @@ func main() {
 		itemRouter.DELETE("/:id", item.DeleteItem(db))
 	}
 
-	// authRouter := v1.Group("/auth")
-	// {
-	// 	authRouter.POST("/login", auth.Login(db))
-	// }
+	authRouter := v1.Group("/auth")
+	{
+		authRouter.POST("/login", auth.Login(db))
+		authRouter.POST("/register", auth.CreateUser(db))
+	}
 
 	r.GET("/ping", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{

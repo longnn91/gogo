@@ -3,25 +3,26 @@ package biz
 import (
 	"context"
 	"gogo/modules/auth/model"
+	// Add the missing import statement for the "store" package
 )
 
-type CreateUserStorage interface {
-	CreateUser(ctx context.Context, data *model.UsersCreation) error
+type GetUserStorage interface {
+	GetUser(ctx context.Context, id int) (*model.Users, error)
 }
 
-type createUserBiz struct {
-	store CreateUserStorage
+type getUserBiz struct {
+	store GetUserStorage
 }
 
-func NewcreateUserBiz(store CreateUserStorage) *createUserBiz {
-	return &createUserBiz{store: store}
+func NewGetUserBiz(store GetUserStorage) *getUserBiz {
+	return &getUserBiz{store: store}
 }
 
-func (biz *createUserBiz) CreateUser(ctx context.Context, data *model.UsersCreation) error {
-
-	if err := biz.store.CreateUser(ctx, data); err != nil {
-		return err
+func (biz *getUserBiz) GetUserById(ctx context.Context, id int) (*model.Users, error) {
+	data, err := biz.store.GetUser(ctx, id)
+	if err != nil {
+		return nil, err
 	}
 
-	return nil
+	return data, nil
 }
