@@ -1,20 +1,21 @@
 CREATE TABLE IF NOT EXISTS `accounts` (
-  `id` bigint PRIMARY KEY,
-  `owner` varchar(255) NOT NULL,
+  `id` bigint AUTO_INCREMENT,
+  `owner` varchar(255) UNIQUE NOT NULL,
   `balance` bigint NOT NULL,
   `currency` varchar(255) NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT (now())
+  `created_at` timestamp NOT NULL DEFAULT (now()),
+  PRIMARY KEY (`id`, `owner`)
 );
 
 CREATE TABLE IF NOT EXISTS `entries` (
-  `id` bigint PRIMARY KEY,
+  `id` bigint PRIMARY KEY AUTO_INCREMENT,
   `account_id` bigint,
   `amount` bigint NOT NULL COMMENT 'It can be negative or positive',
   `created_at` timestamp NOT NULL DEFAULT (now())
 );
 
 CREATE TABLE IF NOT EXISTS `transfers` (
-  `id` bigint PRIMARY KEY,
+  `id` bigint PRIMARY KEY AUTO_INCREMENT,
   `from_account_id` bigint,
   `to_account_id` bigint,
   `amount` bigint NOT NULL COMMENT 'must be positive',
