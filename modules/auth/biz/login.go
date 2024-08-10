@@ -13,10 +13,10 @@ import (
 
 func createToken(username string) (string, error) {
 	claims := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"sub": username,                         // Subject (user identifier)
-		"aud": "user",                           // Audience (user role)
-		"exp": time.Now().Add(time.Hour).Unix(), // Expiration time
-		"iat": time.Now().Unix(),                // Issued at
+		"sub": username,                              // Subject (user identifier)
+		"aud": "user",                                // Audience (user role)
+		"exp": time.Now().Add(time.Hour * 60).Unix(), // Expiration time
+		"iat": time.Now().Unix(),                     // Issued at
 	})
 
 	secretKey := os.Getenv("SECRET_KEY")

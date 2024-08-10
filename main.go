@@ -5,6 +5,7 @@ import (
 	authModal "gogo/modules/auth/model"
 	auth "gogo/modules/auth/transport"
 	item "gogo/modules/items/transport"
+	transaction "gogo/modules/transaction/transport"
 	"log"
 	"net/http"
 	"os"
@@ -42,6 +43,11 @@ func main() {
 	//Config API use gin
 	r := gin.Default()
 	v1 := r.Group("/v1")
+	transactionRouter := v1.Group("/transaction").Use(middleware.AuthMiddleware)
+	{
+		transactionRouter.POST("/", transaction.CreateTransfer(db))
+	}
+
 	itemRouter := v1.Group("/items").Use(middleware.AuthMiddleware)
 	{
 		itemRouter.POST("/", item.CreateItem(db))
