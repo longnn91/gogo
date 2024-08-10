@@ -1,8 +1,8 @@
-package biz
+package service
 
 import (
 	"context"
-	"gogo/modules/transaction/model"
+	model "gogo/modules/transaction/model"
 )
 
 type CreateTransferStorage interface {

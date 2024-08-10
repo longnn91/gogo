@@ -5,7 +5,7 @@ import (
 	authModal "gogo/modules/auth/model"
 	auth "gogo/modules/auth/transport"
 	item "gogo/modules/items/transport"
-	transaction "gogo/modules/transaction/transport"
+	transaction "gogo/modules/transaction/controller"
 	"log"
 	"net/http"
 	"os"

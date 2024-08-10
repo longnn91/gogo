@@ -2,9 +2,9 @@ package transaction
 
 import (
 	"gogo/common"
-	"gogo/modules/transaction/biz"
+	storage "gogo/modules/transaction/database"
 	"gogo/modules/transaction/model"
-	"gogo/modules/transaction/storage"
+	"gogo/modules/transaction/service"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -20,7 +20,7 @@ func CreateTransfer(db *gorm.DB) func(*gin.Context) {
 		}
 		store := storage.NewSQLStore(db)
 
-		business := biz.NewCreateTransferBiz(store)
+		business := service.NewCreateTransferBiz(store)
 
 		if err := business.CreateTransfer(c.Request.Context(), &data); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
