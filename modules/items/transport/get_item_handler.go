@@ -1,6 +1,7 @@
 package item
 
 import (
+	"fmt"
 	"gogo/common"
 	"gogo/modules/items/storage"
 	"net/http"
@@ -28,6 +29,8 @@ func GetItem(db *gorm.DB) func(*gin.Context) {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
+
+		fmt.Println("data: ", data)
 
 		c.JSON(http.StatusOK, common.SimpleSuccessResponse(data))
 
