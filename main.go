@@ -4,8 +4,7 @@ import (
 	"gogo/modules/auth/middleware"
 	authModal "gogo/modules/auth/model"
 	auth "gogo/modules/auth/transport"
-	item "gogo/modules/items/transport"
-	transaction "gogo/modules/transaction/controller"
+	food "gogo/modules/food/controller"
 	"log"
 	"net/http"
 	"os"
@@ -43,19 +42,10 @@ func main() {
 	//Config API use gin
 	r := gin.Default()
 	v1 := r.Group("/v1")
-	transactionRouter := v1.Group("/transaction").Use(middleware.AuthMiddleware)
-	{
-		transactionRouter.POST("/", transaction.CreateTransfer(db))
-	}
 
-	itemRouter := v1.Group("/items").Use(middleware.AuthMiddleware)
+	foodRouter := v1.Group("/food").Use(middleware.AuthMiddleware)
 	{
-		itemRouter.POST("/", item.CreateItem(db))
-		itemRouter.GET("/", item.ListItem(db))
-		itemRouter.GET("/:id", item.GetItem(db))
-		itemRouter.PUT("/:id", item.UpdateItem(db))
-		itemRouter.PATCH("/:id", item.UpdateItem(db))
-		itemRouter.DELETE("/:id", item.DeleteItem(db))
+		foodRouter.POST("/", food.CreateFood(db))
 	}
 
 	authRouter := v1.Group("/auth")

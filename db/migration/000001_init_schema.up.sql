@@ -1,39 +1,77 @@
-CREATE TABLE IF NOT EXISTS `accounts` (
+CREATE TABLE `users` (
   `id` bigint AUTO_INCREMENT,
-  `owner` varchar(255) UNIQUE NOT NULL,
-  `balance` bigint NOT NULL,
-  `currency` varchar(255) NOT NULL,
+  `username` varchar(50) PRIMARY KEY NOT NULL,
+  `first_name` varchar(255) NOT NULL,
+  `last_name` varchar(255) NOT NULL,
+  `phone_number` varchar[12],
+  `bio` varchar[500],
   `created_at` timestamp NOT NULL DEFAULT (now()),
-  PRIMARY KEY (`id`, `owner`)
+  `updated_at` timestamp NOT NULL DEFAULT (now())
 );
 
-CREATE TABLE IF NOT EXISTS `entries` (
+CREATE TABLE `menus` (
   `id` bigint PRIMARY KEY AUTO_INCREMENT,
-  `account_id` bigint,
-  `amount` bigint NOT NULL COMMENT 'It can be negative or positive',
-  `created_at` timestamp NOT NULL DEFAULT (now())
+  `name` varchar(255) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT (now()),
+  `updated_at` timestamp NOT NULL DEFAULT (now())
 );
 
-CREATE TABLE IF NOT EXISTS `transfers` (
+CREATE TABLE `categories` (
   `id` bigint PRIMARY KEY AUTO_INCREMENT,
-  `from_account_id` bigint,
-  `to_account_id` bigint,
-  `amount` bigint NOT NULL COMMENT 'must be positive',
-  `created_at` timestamp NOT NULL DEFAULT (now())
+  `name` varchar(255) NOT NULL,
+  `menu_id` bigint NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT (now()),
+  `updated_at` timestamp NOT NULL DEFAULT (now())
 );
 
-CREATE INDEX `accounts_index_0` ON `accounts` (`owner`);
+CREATE TABLE `foods` (
+  `id` bigint PRIMARY KEY AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `price` bigint NOT NULL,
+  `food_image` varchar(255) NOT NULL,
+  `menu_id` bigint NOT NULL,
+  `category_id` bigint NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT (now()),
+  `updated_at` timestamp NOT NULL DEFAULT (now())
+);
 
-CREATE INDEX `entries_index_1` ON `entries` (`account_id`);
+CREATE TABLE `orders` (
+  `id` bigint PRIMARY KEY AUTO_INCREMENT,
+  `user_note` varchar(500),
+  `created_at` timestamp NOT NULL DEFAULT (now()),
+  `updated_at` timestamp NOT NULL DEFAULT (now())
+);
 
-CREATE INDEX `transfers_index_2` ON `transfers` (`from_account_id`);
+CREATE TABLE `order_items` (
+  `id` bigint PRIMARY KEY AUTO_INCREMENT,
+  `order_id` bigint NOT NULL,
+  `food_id` bigint NOT NULL,
+  `unit` int NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT (now()),
+  `updated_at` timestamp NOT NULL DEFAULT (now())
+);
 
-CREATE INDEX `transfers_index_3` ON `transfers` (`to_account_id`);
+CREATE TABLE `invoice` (
+  `id` bigint PRIMARY KEY AUTO_INCREMENT,
+  `order_id` bigint NOT NULL,
+  `payment_method` ENUM ('banking', 'cash') NOT NULL,
+  `payment_status` ENUM ('inprogress', 'completed') NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT (now()),
+  `updated_at` timestamp NOT NULL DEFAULT (now())
+);
 
-CREATE INDEX `transfers_index_4` ON `transfers` (`from_account_id`, `to_account_id`);
+CREATE INDEX `users_index_0` ON `users` (`username`);
 
-ALTER TABLE `entries` ADD FOREIGN KEY (`account_id`) REFERENCES `accounts` (`id`);
+CREATE INDEX `menus_index_1` ON `menus` (`name`);
 
-ALTER TABLE `transfers` ADD FOREIGN KEY (`from_account_id`) REFERENCES `accounts` (`id`);
+ALTER TABLE `categories` ADD FOREIGN KEY (`menu_id`) REFERENCES `menus` (`id`);
 
-ALTER TABLE `transfers` ADD FOREIGN KEY (`to_account_id`) REFERENCES `accounts` (`id`);
+ALTER TABLE `foods` ADD FOREIGN KEY (`menu_id`) REFERENCES `menus` (`id`);
+
+ALTER TABLE `foods` ADD FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`);
+
+ALTER TABLE `order_items` ADD FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`);
+
+ALTER TABLE `order_items` ADD FOREIGN KEY (`food_id`) REFERENCES `foods` (`id`);
+
+ALTER TABLE `invoice` ADD FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`);
