@@ -1,8 +1,10 @@
 package main
 
 import (
-	"fmt"
-	ginitem "gogo/modules/items/transport/gin"
+	"gogo/modules/auth/middleware"
+	authModal "gogo/modules/auth/model"
+	auth "gogo/modules/auth/transport"
+	food "gogo/modules/food/controller"
 	"log"
 	"net/http"
 	"os"
@@ -14,8 +16,6 @@ import (
 )
 
 func main() {
-	fmt.Println("Hello, World!  33331")
-
 	//Load .env file
 	err := godotenv.Load()
 	if err != nil {
@@ -24,23 +24,34 @@ func main() {
 
 	//Connect to database
 	dsn := os.Getenv("DATABASE_URL")
-	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+
+	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
+		DisableForeignKeyConstraintWhenMigrating: true,
+	})
 
 	if err != nil {
 		log.Fatal("Error connecting to database", err)
 	}
 
+	//Migrate the schema
+
+	db.AutoMigrate(&authModal.Users{})
+	// db.Migrator().CreateTable(&authModal.Users{})
+	// db.Migrator().DropTable(&authModal.Users{})
+
 	//Config API use gin
 	r := gin.Default()
-
 	v1 := r.Group("/v1")
+
+	foodRouter := v1.Group("/food").Use(middleware.AuthMiddleware)
 	{
-		v1.POST("/items", ginitem.CreateItem(db))
-		v1.GET("/items/:id", ginitem.GetItem(db))
-		v1.PUT("/items/:id", ginitem.UpdateItem(db))
-		v1.PATCH("/items/:id", ginitem.UpdateItem(db))
-		v1.DELETE("/items/:id", ginitem.DeleteItem(db))
-		v1.GET("/items", ginitem.ListItem(db))
+		foodRouter.POST("/", food.CreateFood(db))
+	}
+
+	authRouter := v1.Group("/auth")
+	{
+		authRouter.POST("/login", auth.Login(db))
+		authRouter.POST("/register", auth.Register(db))
 	}
 
 	r.GET("/ping", func(c *gin.Context) {

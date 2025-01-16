@@ -14,10 +14,6 @@ type createItemBiz struct {
 	store CreateItemStorage
 }
 
-func NewCreateItemBiz(store CreateItemStorage) *createItemBiz {
-	return &createItemBiz{store: store}
-}
-
 func (biz *createItemBiz) CreateItem(ctx context.Context, data *model.TodoItemsCreation) error {
 	title := strings.TrimSpace(data.Title)
 
@@ -30,4 +26,8 @@ func (biz *createItemBiz) CreateItem(ctx context.Context, data *model.TodoItemsC
 	}
 
 	return nil
+}
+
+func NewCreateItemBiz(store CreateItemStorage) *createItemBiz {
+	return &createItemBiz{store: store}
 }
